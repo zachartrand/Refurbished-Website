@@ -10,4 +10,4 @@ The original website, for comparison, can be found
 [here](http://number-none.com/product/Understanding%20Slerp,%20Then%20Not%20Using%20It/).
 
 Should the link no longer work, the original contents can be found
-[here](/original/The%20Inner%20Product%20Original.html).
+[here](original/The%20Inner%20Product%20Original.html).
