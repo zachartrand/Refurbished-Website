@@ -6,3 +6,6 @@ I decided, to learn HTML and CSS, to reformat it with modern website standards.
 
 The original website, for comparison, can be found
 [here](http://number-none.com/product/Understanding%20Slerp,%20Then%20Not%20Using%20It/).
+
+Should the link no longer work, the original contents can be found
+[here](/original).
