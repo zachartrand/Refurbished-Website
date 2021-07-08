@@ -1,0 +1,119 @@
+:root {
+  --background: #EFEFEF;
+}
+
+html {
+  background-color: var(--background);
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%;
+}
+
+body {
+  background-color: white;
+  overflow-y: visible;
+  overflow-x: hidden;
+  margin: 0% 20% 10% 20%;
+  padding: 0% 5% 5% 5%;
+  font-family: sans-serif;
+}
+
+p {
+  font-size: 16px;
+  text-align: justify;
+}
+
+h1 {
+  font-size: 32px;
+  text-align: center;
+  margin: 10%;
+}
+
+h2 {
+  font-size: 18px;
+  margin-top: 5%;
+}
+
+img {
+  width: 100%;
+}
+
+.author {
+  font-size: 18px;
+  text-align: right;
+  padding: 24px 0px;
+}
+
+table {
+  margin: 30px 0px;
+  width: 100%;
+}
+
+tr {
+  vertical-align: top;
+  width: 100%;
+}
+
+td {
+  padding: 1% 3%;
+}
+
+pre {
+  font-family: monospace;
+}
+
+#reference-container p {
+  text-align: left;
+}
+
+.table-container {
+  width: 100%;
+}
+
+#code-table {
+  font-size: 100%;
+  table-layout: fixed;
+}
+
+#code-table .col1 {
+  width: 45%;
+}
+
+#code-table, #code-table th, #code-table td {
+  border: 1px solid darkgrey;
+  border-collapse: collapse;
+}
+
+#code-block {
+  background-color: #282c34;
+  overflow-x: scroll;
+  max-width: 60%;
+}
+
+#images td {
+  width: 50%;
+  padding: 0% 3%;
+}
+
+#table1 {
+  padding: 0 5%;
+}
+
+#table1, #table1 th, #table1 td {
+  border: 1px solid darkgrey;
+  border-collapse: collapse;
+}
+
+#table1 th, #table1 td {
+  padding: 0px 10px;
+}
+
+#table1 td {
+  text-align: center;
+}
+
+#table1 td.rowlabel {
+  font-weight: bold;
+  text-align: left;
+}

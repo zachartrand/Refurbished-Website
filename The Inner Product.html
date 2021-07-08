@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<!-- saved from url=(0080)http://number-none.com/product/Understanding%20Slerp,%20Then%20Not%20Using%20It/ -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Inner Product</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="prettify.css">
+  </head>
+  <body>
+    <div class="author">
+      <b><i>The Inner Product</i>, April 2004</b><br>
+      Jonathan Blow (<a href="mailto:jon@number-none.com">jon@number-none.com</a>)<br>
+      Last updated 26 February 2004
+    </div>
+
+    <h1 id="understanding-slerp-then-not-using-it">
+      Understanding Slerp, Then Not Using It
+    </h1>
+
+    <p>Recall that rotations can be represented by unit vectors in
+      4-dimensional space that also have an algebraic structure.  These
+      4-vectors are known as the quaternions, and they’re especially useful for
+      rotation interpolation problems, of the sort required by animation and
+      inverse kinematics systems.</p>
+
+    <p>There are an infinite number of paths that transition from rotation A to
+      rotation B, but in general there’s only one “straightest” way to get
+      there, known as the torque-minimal path.  Since this path travels along
+      the surface of the 4-sphere, it is inherently curved.  The function slerp
+      walks along this path at a constant speed; slerp was popularized in the
+      computer graphics industry by Shoemake (see References).</p>
+
+    <p>Despite quaternions being very important things, few game programmers
+      understand how they work, the slerp function being an especially
+      mysterious black box.  (Shoemake does not present a derivation in his
+      paper; he just gives the formula).  Certainly you can derive slerp by
+      considering the geometry of a sphere in 4D space, but such spheres are
+      difficult to visualize.  So I’d like to present a derivation of slerp
+      that works differently.</p>
+
+    <h2 id="slerp-solutions-are-coplanar">Slerp solutions are coplanar</h2>
+
+    <p>The inputs to slerp are two quaternions, q<sub>0</sub> and
+      q<sub>1</sub>, as well as a scalar parameter t that tells us how far to
+      interpolate between these. (t = 0 gives us q<sub>0</sub>, t = 1 gives us
+      q<sub>1</sub>, and intermediate values of t give us quaternions on the
+      path between q<sub>0</sub> and q<sub>1</sub>).</p>
+
+    <p>The first useful thing to realize is that all results from the slerp
+      must lie in the plane P defined by q<sub>0</sub>, q<sub>1</sub> and the
+      origin.  I won’t present formal proof here, because I want to get to the
+      meat of the article.  So I will make a hand-wavy argument; for a more
+      formal explanation, see Genevieve Walsh’s paper, section 1.1 titled
+      “Geodesics in the three-sphere”.</p>
+
+    <p>Because the hypersphere is symmetric in all directions about the origin,
+      we can reflect it across any plane that passes through the origin,
+      producing an equivalent hypersphere.  We reflect the sphere across P;
+      because P contains q<sub>0</sub> and q<sub>1</sub>, q<sub>0</sub> and
+      q<sub>1</sub> stay in the same places; because the rest of the sphere was
+      mapped to itself, the geometry is the same, so the shortest path did not
+      change.  But since every point not contained within P was moved by the
+      reflection, we know the path must be contained in P.  (I have assumed
+      here that there is only one shortest path, which is implicit in the idea
+      of constructing a well-formed slerp function; but you can read about
+      geodesics if you want to dig deeper into this subject.)</p>
+
+    <p>If this handwaving argument was confusing, you can just take it for
+      granted that slerp always generates great circles of the hypersphere,
+      and great circles are always coplanar (since they are circles!)</p>
+
+    <h2 id="how-this-co-planarity-helps">How this co-planarity helps</h2>
+
+    <p>Once we believe the results of slerp are all coplanar, the situation is
+      still somewhat confusing since that plane P is oriented arbitrarily in
+      4-dimensional space.  But we can employ a simplifying strategy – suppose
+      we build a transform that moves P from its arbitrary orientation onto the
+      familiar XY plane.  We can solve the interpolation problem in 2D space,
+      then transform the result back to the arbitrary orientation in 4D.</p>
+
+    <p>Such a transformation could be represented by a 4x4 matrix.  However, it
+      would take extra CPU to compute and apply the transformation.  Luckily
+      for us, this transformation is unnecessary.  If we feel like we need it,
+      that’s because we are overly attached to our coordinate systems.  When
+      we adopt a Zen-like detachment from the idea of coordinates, we find
+      that the problem is simplified.</p>
+
+    <p>Linear objects, like vectors and planes, exist independently from the
+      methods we use to represent them (i.e. coordinate systems).  These
+      objects always obey the properties of linear algebra.  Thus we can derive
+      formulas directly from these linear properties, without ever mentioning
+      coordinates – in the literature this is called a coordinate-free
+      derivation.  Formulas with coordinate-free derivations are very powerful;
+      they must be true in all linear spaces, regardless of petty details like
+      the total number of dimensions in the space.  (Except perhaps for
+      infinite-dimensional spaces.  Those are tricky and we should take great
+      care when venturing into them, hic sunt dracones and all that.)</p>
+
+    <p>If you’re not used to thinking in a coordinate-free way, Sheldon
+      Axler’s book Linear Algebra Done Right is a good start (see References).
+      For now I will show a coordinate-free derivation of slerp using
+      2-dimensional illustrations (which are all you need!).</p>
+
+    <h2 id="coordinate-free-derivation-of-slerp">
+      Coordinate-free derivation of slerp
+    </h2>
+
+    <p>Our inputs are two unit vectors, v<sub>0</sub> and v<sub>1</sub>, and a
+      scalar t.  We are solving for a vector r whose angle with v<sub>0</sub> is
+      <i>θ</i> = t <i>θ</i><sub>0</sub>, where <i>θ</i><sub>0</sub> is the
+      angle between v<sub>0</sub> and v<sub>1</sub>.</p>
+
+    <p>Figure 1 illustrates the problem.  I have drawn v<sub>0</sub> in the
+      direction we usually use for the X axis when drawing the XY plane.  This
+      by itself suggests a solution.  If we had some vector v<sub>2</sub> that
+      was orthogonal to v<sub>0</sub>, as the Y axis is to the X, then our
+      solution r = v<sub>0</sub>cos<i>θ</i> + v<sub>2</sub>sin<i>θ</i>.</p>
+
+    <p>Assume our input v<sub>1</sub> is linearly independent from
+      v<sub>0</sub>.  (If it isn’t, then the entire slerp problem is
+      ill-formed; robust implementations of slerp contain a preamble to handle
+      this case).  Since v<sub>0</sub> and v<sub>1</sub> are independent, we
+      can orthonormalize v<sub>1</sub> against v<sub>0</sub> to yield
+      v<sub>2</sub>; see Figure 2.  That’s it, we’re basically done!  The rest
+      is implementation details, like finding <i>θ</i><sub>0</sub> from
+      v<sub>0</sub> and v<sub>1</sub>.  Listing 1 contains pseudocode for the
+      whole function.  That’s slerp; slerp is not some scary 4-dimensional
+      thing.  Listing 2 contains actual C++ source code.  Though this code is
+      written specifically for some type called a Quaternion, it is valid for
+      vectors represented in an arbitrary number of dimensions; so if you have
+      some dynamic n-dimensional vector class, you can just plug in the same
+      source code.  (Perhaps you want to interpolate surface normals on the
+      unit sphere in R3).</p>
+
+    <table id="images">
+      <tr>
+        <td><img src="images/image002.jpg"></td>
+        <td><img src="images/image004.jpg"></td>
+      </tr>
+      <tr>
+        <td><b>Figure 1:</b> We want to find the vector r that is at angle
+          <i>θ</i> from v<sub>0</sub>.</td>
+
+        <td><b>Figure 2:</b> Using v<sub>1</sub>, we build the orthonormal
+          basis {v<sub>0</sub>, v<sub>2</sub>}, which allows us to easily
+          compute r.</td>
+      </tr>
+    </table>
+
+    <p>Suppose we were not trying to be coordinate-free, and just wanted to
+      solve slerp in the XY plane.  Then finding v<sub>2</sub> is even easier;
+      we can just say v<sub>2</sub> = v<sub>0┴</sub>, that is, v<sub>2x</sub> =
+      -v<sub>0y</sub>, v<sub>2y</sub> = v<sub>0x</sub>.  But if we then try
+      and raise the problem to higher dimensions, we don’t know what to do
+      with this operator ┴.  It assumes we are living in XY coordinates, which
+      is a relatively weak stance for an operator to take.</p>
+
+    <p>There’s a cosmetic difference between this slerp and the Shoemake code.
+      Where I use a Normalize function, Shoemake divides by
+      sin<i>θ</i><sub>0</sub>. Indeed this has the same effect as a Normalize;
+      some trig will tell you that the length of v<sub>2</sub> prior to
+      normalization is sin<i>θ</i><sub>0</sub>, so the divide turns it back
+      into a unit vector. I like to use the explicit Normalize, though,
+      because it emphasizes the vector nature of the computation.  As to which
+      method is faster, that’s unclear, as it depends heavily on the target
+      hardware. But you shouldn’t care, because if you’re calling slerp in the
+      first place, you are already in for a world of slowness; small deviations
+      in that slowness are not going to matter much.</p>
+
+    <p>In fact, game programmers should be using slerp a lot less often than
+      they do.  I think it’s an important function to understand – hence this
+      article! – but a deep understanding of the function implies that you
+      know when not to use it, which is most of the time.</p>
+
+  <div class="table-container">
+    <table id="code-table">
+      <tr>
+        <th class="col1">Listing 1: Pseudocode for slerp</th>
+        <th class="col2">Listing 2: C++ code for slerp</th>
+      </tr>
+      <tr>
+        <td class="col1">
+          Inputs are: unit vectors v<sub>0</sub> and v<sub>1</sub>, scalar t
+          <br>
+          v<sub>0</sub> and v<sub>1</sub> are linearly independent<br>
+          <br>
+          Let <i>θ</i><sub>0</sub> = acos(v<sub>0</sub> · v<sub>1</sub>)<br>
+          Let <i>θ</i> = t<i>θ</i><sub>0</sub><br>
+          Let v<sub>2</sub> = Normalize(v<sub>1</sub> - (v<sub>0</sub> ·
+          v<sub>1</sub>)v<sub>0</sub>)<br>
+          return v<sub>0</sub>cos<i>θ</i> + v<sub>2</sub>sin<i>θ</i></td>
+
+        <td class="col2" id="code-block">
+          <pre class="prettyprint"><code class="language-cpp">
+Quaternion slerp(Quaternion const &v0, Quaternion const &v1, double t) {
+    // v0 and v1 should be unit length or else
+    // something broken will happen.
+
+    // Compute the cosine of the angle between the two vectors.
+    double dot = dot_product(v0, v1);
+
+    const double DOT_THRESHOLD = 0.9995;
+    if (dot > DOT_THRESHOLD) {
+        // If the inputs are too close for comfort, linearly interpolate
+        // and normalize the result.
+
+        Quaternion result = v0 + t*(v1 – v0);
+        result.normalize();
+        return result;
+    }
+
+    Clamp(dot, -1, 1);           // Robustness: Stay within domain of acos()
+    double theta_0 = acos(dot);  // theta_0 = angle between input vectors
+    double theta = theta_0*t;    // theta = angle between v0 and result
+
+    Quaternion v2 = v1 – v0*dot;
+    v2.normalize();              // { v0, v2 } is now an orthonormal basis
+
+    return v0*cos(theta) + v2*sin(theta);
+}</code></pre>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+    <h2 id="alternatives-to-slerp">Alternatives to slerp</h2>
+
+    <p>As discussed in the paper by Muratori and Bloom (see References), there
+      are 3 basic properties we often want when interpolating rotations:
+      commutativity, constant velocity, and minimal torque.  Unfortunately, it
+      seems impossible to get all three at once. There are three major methods
+      of quaternion interpolation, and each of those methods gives you two of
+      the three desirable properties.  The choices are: quaternion slerp
+      (popularized by Ken Shoemake), normalized quaternion lerp (which I will
+      call nlerp from now on; also discussed in the Shoemake paper but not
+      considered important there; popularized by Casey Muratori, and some of us
+      consider it very important in games now), and log-quaternion lerp (also
+      known as exponential map interpolation; see the paper by Grassia).
+      See Table 1 for a handy summary of the properties of each interpolation
+      method.</p>
+
+    <p></p>
+    <table id="table1">
+      <caption><b>Table 1: Three methods of rotation interpolation, and the
+        properties they satisfy.</b>  ‘nlerp’ is the normalized lerp.</caption>
+      <tr>
+        <th></th>
+        <th>commutative</th>
+        <th>constant velocity</th>
+        <th>torque-minimal</th>
+      </tr>
+
+      <tr>
+        <td class="rowlabel">quaternion slerp</td>
+        <td><b>No!</b></td>
+        <td>Yes</td>
+        <td>Yes</td>
+      </tr>
+
+      <tr>
+        <td class="rowlabel">quaternion nlerp</td>
+        <td>Yes</td>
+        <td><b>No!</b></td>
+        <td>Yes</td>
+      </tr>
+
+      <tr>
+        <td class="rowlabel">log-quaternion lerp</td>
+        <td>Yes</td>
+        <td>Yes</td>
+        <td><b>No!</b></td>
+      </tr>
+    </table>
+
+    <p>Currently, slerp is considered by most to be the authoritative method
+      for rotation interpolation. This is because most programmers don’t
+      understand slerp, much less the alternatives; they just hear from other
+      people that slerp is the right thing to do, then they paste the Shoemake
+      routines into their source code.  Shoemake presented the concept well
+      and his paper was very helpful and relevant.  But as Table 1 clearly
+      suggests, we have several available solutions and we can choose the one
+      that fits our problem best.</p>
+
+    <p>Right now there are a few major tasks in games for which we use
+      rotation interpolation; mainly they involve animation interpolation and
+      inverse kinematics.  (Camera control, for example, can be viewed as a
+      sub-problem of these.)</p>
+
+    <p>When building animation systems, programmers often use slerp to
+      generate rotations in between keyframes, then attempt to optimize the
+      slerp function so that the animation system runs faster.  For examples
+      of slerp optimizations, see the Inner Product article “Hacking
+      Quaternions” (March 2002) or Thomas Busser’s feature on PolySlerp
+      (February 2004).  Generally these optimized slerps are slower and harder
+      to understand than the normalized linear interpolation.  We should only
+      be using them if we really need our rotations to interpolate at constant
+      velocity.</p>
+
+    <p>But as Casey clearly pointed out to me, continuity and runtime
+      efficiency are the most important issues for an in-game animation engine,
+      and nlerp delivers these the best.  It’s easy to get caught up in the
+      idea that slerp is the “right answer” and to worry about nlerp’s
+      nonconstant velocity, but in reality the issue is unimportant.  Slerp is
+      not the “right answer” unless the animator actually used quaternion keys
+      with order-1 interpolation when authoring the animation, which is
+      usually not the case.  Unless we want to try to duplicate all of the
+      quirks of an animation package’s possible rotation representations
+      (which we don’t), we usually export animations to our game by sampling
+      them at regular intervals from the art package (perhaps sampling at
+      30Hz, with the samples chosen in some convenient representation, like
+      quaternions); then we perform some compression on those samples (like
+      spline fitting) and save the result to disk.</p>
+
+    <p>Animators don’t even know what their animations look like for time
+      values between these 30Hz samples (or whatever frame rate they authored
+      the animation at).  Since the animator isn’t intentionally authoring
+      poses at those time values, it’s silly to try and duplicate those
+      poses.</p>
+
+    <p>Because of this unintentionality, at runtime we’re concocting whatever
+      rotation path we want in order to fill between samples.  In this context
+      of just making stuff up, there’s no reason to spend extra CPU on slerp
+      since we don’t gain any benefit for this expenditure.  (To see why it’s
+      pointless, imagine that the animator used Euler keys, in which case the
+      “right answer” is some path that is non-torque-minimal, with
+      non-constant velocity… certainly nothing like what slerp would give
+      you).</p>
+
+    <p>In fact, in the highly-compressing sort of animation export system, the
+      nature of the visible animation is controlled at a high level by the
+      spline fitter.  The spline fitter is inherently going to adjust for the
+      properties of the low-level interpolator by introducing and adjusting
+      the knots of the spline until acceptable perceptual error is reached.
+      So the exact properties of the runtime rotation interpolator don’t
+      really matter, so long as the path is not discontinuous or harsh.  Thus
+      nlerp is really the best choice for these cases.</p>
+
+    <p>For inverse kinematics problems, such as example-based IK, we tend to
+      write iterative routines that solve for the goal rotation.  Such a
+      routine is not even trying to hit the right answer on the first
+      iteration (it can’t do that), so the constant-velocity property of
+      slerp is not useful.  So long as the interpolation is monotonic, like
+      nlerp, then the solver will find the goal without undue trouble.</p>
+
+    <p>For example-based IK solvers, and for animation systems that blend more
+      than two animations, commutativity is a highly desirable property, since
+      it ensures that the results of the blend do not depend on the order in
+      which the poses are mixed.  Slerp does not provide commutativity, but
+      nlerp does.  Commutative blends are much easier to understand and work
+      with.  So nlerp is the best choice for these tasks too.</p>
+
+    <h2 id="conclusion">Conclusion</h2>
+
+    <p>Game systems are big and complicated, so there may be some occasions on
+      some games where you really do want to use slerp.  But right now, I
+      really can’t think of any; so I encourage you to reconsider the use of
+      slerp in your game if it is in any danger of causing speed problems.
+      Fast slerp approximations add complexity to your engine and increase the
+      difficulty of understanding the whole system, so they should be avoided
+      when nlerp suffices.</p>
+
+    <h2 id="related-articles">Related articles</h2>
+
+    <p>Hacking Quaternions (March 2002)</p>
+
+    <p>IK with Quaternion Joint Limits (April 2002)</p>
+
+    <div id="reference-container">
+      <h2 id="references">References:</h2>
+
+      <p>Sheldon Axler, Linear Algebra Done Right, 2nd ed., Springer, 1997.</p>
+
+      <p>Ken Shoemake, “Animating Rotation with Quaternion Curves”, Computer
+        Graphics, Volume 19, Number 3, 1985.</p>
+
+      <p>David Eberly, “Quaternion Algebra and Calculus”,
+        <a href="http://www.magic-software.com/Documentation/Quaternions.pdf">http://www.magic-software.com/Documentation/Quaternions.pdf</a></p>
+
+      <p>Si Brown, “An Introduction To Representing Rotations In Quaternion
+        Arithmetic”, <a href="http://www.sjbrown.co.uk/quaternions.html">http://www.sjbrown.co.uk/quaternions.html</a></p>
+
+      <p>Casey Muratori and Charles Bloom, “A Paper About Rotation Interpolation
+        That We Will Never Finish Because We Are Lazy”, referenced in
+        gdalgorithms mailing list posting at
+        <a href="http://www.gdalgorithms.org/archives/2003-05/459f4ae23eb2f34f.html">http://www.gdalgorithms.org/archives/2003-05/459f4ae23eb2f34f.html</a></p>
+
+      <p>Genevieve Walsh, “Great Circle Links in the Three-Sphere”, PhD
+        Dissertation from UC Davis, available at
+        <a href="http://www.ma.utexas.edu/users/gwalsh/dissertationfinal.pdf">http://www.ma.utexas.edu/users/gwalsh/dissertationfinal.pdf</a></p>
+
+      <p>F. Sebastian Grassia, “Practical parameterization of rotations using
+        the exponential map”, Journal of Graphics Tools, volume 3.3, 1998.
+        Available at <a href="http://graphics.snu.ac.kr/OpenGL2003/10(1112)/expmap.pdf">http://graphics.snu.ac.kr/OpenGL2003/10(1112)/expmap.pdf<a></p>
+    </div>
+    <script src="prettify.js"></script>
+    <script>
+      window.onload = (function(){ prettyPrint(); });
+    </script>
+  </body>
+</html>
