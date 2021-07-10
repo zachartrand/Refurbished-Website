@@ -1,7 +1,31 @@
+/***********************************************************
+*
+* This CSS document copyright (c) 2021 Zachary Chartrand,
+* All Rights Reserved.
+*
+* This CSS goes with the "The Inner Product.html" webpage.
+* This was created as an exercise to make an older webpage
+* that looks badly formatted by today's standards look more
+* like a contemporary webpage.
+*
+* While I claim no ownership of the contents of that
+* webpage, this CSS was written from scratch and is my
+* intellectual property.
+*
+************************************************************/
+
+/* Meta data:
+* Author: Zachary Chartrand
+* Auther email: zachartrand999@gmail.com
+* Author URL: https://zachartrand.github.io, https://github.com/zachartrand
+* Tags: Website
+*/
+
 :root {
-  --background: #EFEFEF;
+  --background: #efefef;
 }
 
+/* General formatting. */
 * {
   box-sizing: border-box;
 }
@@ -11,42 +35,38 @@ html {
 }
 
 body {
-  background-color: white;
+  background-color: #fff;
   font-family: sans-serif;
-  font-size: 1.1rem;
-  overflow-x: hidden;
+  font-size: 1rem;
+  overflow-x: auto;
   overflow-y: visible;
-  margin: 2em 15%;
+  margin: 30px auto 150px auto;
+  width: 900px;
   word-wrap: break-word;
 }
 
-.page-header {
-  padding: 5rem 6rem;
+/* The header contains a sentence with a link to the original webpage. */
+header {
+  padding-top: 20px;
 }
 
-.page-header h1 {
-  font-size: 2.5em;
+header p {
+  font-size: 80%;
+  font-style: italic;
   text-align: center;
-  margin-bottom: 0.1rem;
+  margin: auto;
 }
 
-.author {
-  font-size: 18px;
-  text-align: right;
-  margin-bottom: 4rem;
-}
-
-.main-content {
-  padding: 5% 10%;
-}
-
-h1, h2 {
-  margin-top: 3rem;
-  margin-bottom: 1.5rem;
+h1 {
+  font-size: 32px;
+  margin: 0 auto 5rem auto;
+  text-align: center;
 }
 
 h2 {
   font-size: 1.3em;
+  margin-top: 3rem;
+  margin-bottom: 1.5rem;
 }
 
 p {
@@ -56,36 +76,53 @@ p {
   margin-bottom: 2rem;
 }
 
+/* This prevents images from rendering too wide on the webpage. */
 img {
   width: 100%;
 }
 
 table {
-  margin: 30px 0px;
+  margin: 30px 0px;  /* Put vertical spacing between table and surrounding paragraphs. */
   width: 100%;
 }
 
 tr {
   vertical-align: top;
-  width: 100%;
+  width: 100%;  /* Makes sure table rows take up full horizontal space. */
 }
 
 td {
-  padding: 1% 3%;
+  padding: 1% 3%;  /* Looks better with a little bit of space between content
+                      and cell borders. */
 }
 
 pre {
   font-family: monospace;
 }
 
-#reference-container p {
-  text-align: left;
+/* Class-level formatting. */
+.page-header {
+  padding: 4rem 6rem;
 }
 
-.table-container {
-  width: 100%;
+/* Block of text containing the original author's information. */
+.author {
+  font-size: 18px;
+  text-align: right;
 }
 
+.main-content {
+  padding: 5% 10%;
+}
+
+
+.reference-container p {
+  text-align: left;  /* Justify doesn't work with the way References are formatted. */
+}
+
+/* id-level formatting */
+
+/* Formatting for the table containing C++ code. */
 #code-table {
   table-layout: fixed;
 }
@@ -106,11 +143,13 @@ pre {
   max-width: 60%;
 }
 
+/* Ensures that each image and caption is restricted to half the screen. */
 #images td {
   width: 50%;
   padding: 0% 3%;
 }
 
+/* Formatting for comparison table of different interpolation algorithms. */
 #table1 {
   padding: 0 5%;
 }
