@@ -131,7 +131,7 @@ pre {
 }
 
 #code-table, #code-table th, #code-table td {
-  border: 1px solid darkgrey;
+  border: 1px solid #a9a9a9;
   border-collapse: collapse;
 }
 
@@ -154,7 +154,7 @@ pre {
 }
 
 #table1, #table1 th, #table1 td {
-  border: 1px solid darkgrey;
+  border: 1px solid #a9a9a9;
   border-collapse: collapse;
 }
 
