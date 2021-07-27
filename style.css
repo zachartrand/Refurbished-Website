@@ -64,7 +64,6 @@ header p {
 
 a {
   color: var(--link-color);
-  target: _blank;
   text-decoration: none;
 }
 
