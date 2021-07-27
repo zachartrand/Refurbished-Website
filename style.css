@@ -22,7 +22,12 @@
 */
 
 :root {
-  --background: #efefef;
+  --background-color: #efefef;
+  --body-background-color: #fff;
+  --code-background-color: #282c34;
+  --link-color: #4da6ff;
+  --link-hover-color: #0080ff;
+  --table-border-color: #a9a9a9;
 }
 
 /* General formatting. */
@@ -31,11 +36,11 @@
 }
 
 html {
-  background-color: var(--background);
+  background-color: var(--background-color);
 }
 
 body {
-  background-color: #fff;
+  background-color: var(--body-background-color);
   font-family: sans-serif;
   font-size: 1rem;
   overflow-x: auto;
@@ -55,6 +60,16 @@ header p {
   font-style: italic;
   text-align: center;
   margin: auto;
+}
+
+a {
+  color: var(--link-color);
+  target: _blank;
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--link-hover-color);
 }
 
 h1 {
@@ -85,6 +100,11 @@ table {
   width: 100%;
 }
 
+table.grid, table.grid th, table.grid td {
+  border: 1px solid var(--table-border-color);
+  border-collapse: collapse;
+}
+
 tr {
   vertical-align: top;
   width: 100%;  /* Makes sure table rows take up full horizontal space. */
@@ -95,11 +115,28 @@ td {
                       and cell borders. */
 }
 
-pre {
+em {
+  font-style: normal;
+  font-weight: bold;
+}
+
+.code-block pre {
+  background-color: var(--code-background-color);
   font-family: monospace;
+  margin: 0;
+  overflow-x: scroll;
+  padding: 2%;
+  padding-bottom: 5%;
 }
 
 /* Class-level formatting. */
+
+.code-block {
+  font-size: 0.8em;
+  max-width: 60%;
+  padding: 0;
+}
+
 .page-header {
   padding: 4rem 6rem;
 }
@@ -130,18 +167,6 @@ pre {
   width: 45%;
 }
 
-#code-table, #code-table th, #code-table td {
-  border: 1px solid #a9a9a9;
-  border-collapse: collapse;
-}
-
-#code-block {
-  background-color: #282c34;
-  font-size: 0.8em;
-  overflow-x: scroll;
-  max-width: 60%;
-}
-
 /* Ensures that each image and caption is restricted to half the screen. */
 #images td {
   width: 50%;
@@ -151,11 +176,6 @@ pre {
 /* Formatting for comparison table of different interpolation algorithms. */
 #table1 {
   padding: 0 5%;
-}
-
-#table1, #table1 th, #table1 td {
-  border: 1px solid #a9a9a9;
-  border-collapse: collapse;
 }
 
 #table1 th, #table1 td {
