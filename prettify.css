@@ -33,7 +33,7 @@
 }
 
 /* Put a border around prettyprinted code snippets. */
-pre.prettyprint { padding: 2px } /* Removed border because it looked tacky to me. -Zach */
+/* pre.prettyprint { padding: 2px } */ /* Removed border and padding because it looked tacky to me. -Zach */
 
 /* Specify class=linenums on a pre to get line numbering */
 ol.linenums { margin-top: 0; margin-bottom: 0 } /* IE indents via margin-left */
