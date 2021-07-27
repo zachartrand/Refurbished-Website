@@ -182,10 +182,10 @@
         know when not to use it, which is most of the time.</p>
 
     <div class="table-container">
-      <table id="code-table">
+      <table class="grid" id="code-table">
         <tr>
           <th class="col1">Listing 1: Pseudocode for slerp</th>
-          <th class="col2">Listing 2: C++ code for slerp</th>
+          <th>Listing 2: C++ code for slerp</th>
         </tr>
         <tr>
           <td class="col1">
@@ -199,7 +199,7 @@
             v<sub>1</sub>)v<sub>0</sub>)<br>
             return v<sub>0</sub>cos<i>θ</i> + v<sub>2</sub>sin<i>θ</i></td>
 
-          <td class="col2" id="code-block">
+          <td class="code-block">
             <pre class="prettyprint"><code class="language-cpp">
   Quaternion slerp(Quaternion const &v0, Quaternion const &v1, double t) {
       // v0 and v1 should be unit length or else
@@ -249,7 +249,7 @@
         method.</p>
 
       <p></p>
-      <table id="table1">
+      <table class="grid" id="table1">
         <caption><b>Table 1: Three methods of rotation interpolation, and the
           properties they satisfy.</b>  ‘nlerp’ is the normalized lerp.</caption>
         <tr>
@@ -261,7 +261,7 @@
 
         <tr>
           <td class="rowlabel">quaternion slerp</td>
-          <td><b>No!</b></td>
+          <td><em>No!</em></td>
           <td>Yes</td>
           <td>Yes</td>
         </tr>
@@ -269,7 +269,7 @@
         <tr>
           <td class="rowlabel">quaternion nlerp</td>
           <td>Yes</td>
-          <td><b>No!</b></td>
+          <td><em>No!</em></td>
           <td>Yes</td>
         </tr>
 
@@ -277,7 +277,7 @@
           <td class="rowlabel">log-quaternion lerp</td>
           <td>Yes</td>
           <td>Yes</td>
-          <td><b>No!</b></td>
+          <td><em>No!</em></td>
         </tr>
       </table>
 
