@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <!-- saved from url=(0080)http://number-none.com/product/Understanding%20Slerp,%20Then%20Not%20Using%20It/ -->
+<!--
+I claim no ownership of this webpage other than the CSS file.
+-->
 <html lang="en">
   <head>
     <meta charset="UTF-8">
@@ -18,8 +21,10 @@
     </header>
     <section class="page-header">
       <div class="author">
-        <b><i>The Inner Product</i>, April 2004</b><br>
-        Jonathan Blow (<a href="mailto:jon@number-none.com">jon@number-none.com</a>)<br>
+        <b><i>The Inner Product</i>, April 2004</b>
+        <br>
+        Jonathan Blow (<a href="mailto:jon@number-none.com">jon@number-none.com</a>)
+        <br>
         Last updated 26 February 2004
       </div>
     </section>
@@ -201,33 +206,32 @@
             return v<sub>0</sub>cos<i>θ</i> + v<sub>2</sub>sin<i>θ</i></td>
 
           <td class="code-block">
-            <pre class="prettyprint"><code class="language-cpp">
-  Quaternion slerp(Quaternion const &v0, Quaternion const &v1, double t) {
-      // v0 and v1 should be unit length or else
-      // something broken will happen.
+            <pre class="prettyprint"><code class="language-cpp">Quaternion slerp(Quaternion const &v0, Quaternion const &v1, double t) {
+    // v0 and v1 should be unit length or else
+    // something broken will happen.
 
-      // Compute the cosine of the angle between the two vectors.
-      double dot = dot_product(v0, v1);
+    // Compute the cosine of the angle between the two vectors.
+    double dot = dot_product(v0, v1);
 
-      const double DOT_THRESHOLD = 0.9995;
-      if (dot > DOT_THRESHOLD) {
-          // If the inputs are too close for comfort, linearly interpolate
-          // and normalize the result.
+    const double DOT_THRESHOLD = 0.9995;
+    if (dot > DOT_THRESHOLD) {
+        // If the inputs are too close for comfort, linearly interpolate
+        // and normalize the result.
 
-          Quaternion result = v0 + t*(v1 – v0);
-          result.normalize();
-          return result;
-      }
+        Quaternion result = v0 + t*(v1 – v0);
+        result.normalize();
+        return result;
+    }
 
-      Clamp(dot, -1, 1);           // Robustness: Stay within domain of acos()
-      double theta_0 = acos(dot);  // theta_0 = angle between input vectors
-      double theta = theta_0*t;    // theta = angle between v0 and result
+    Clamp(dot, -1, 1);           // Robustness: Stay within domain of acos()
+    double theta_0 = acos(dot);  // theta_0 = angle between input vectors
+    double theta = theta_0*t;    // theta = angle between v0 and result
 
-      Quaternion v2 = v1 – v0*dot;
-      v2.normalize();              // { v0, v2 } is now an orthonormal basis
+    Quaternion v2 = v1 – v0*dot;
+    v2.normalize();              // { v0, v2 } is now an orthonormal basis
 
-      return v0*cos(theta) + v2*sin(theta);
-  }</code></pre>
+    return v0*cos(theta) + v2*sin(theta);
+}</code></pre>
           </td>
         </tr>
       </table>
